@@ -67,13 +67,10 @@ def create_graph(silent = False):
 		g.plot_indicator(start=100, length=400)
 	return g
 
-def analyze(silent = False, min_profit=0.0):
+def analyze(silent = False, train_sample = 10, min_profit=0.0, 	train_epochs = 100):
 	g = create_graph(silent)
 
 	train_type = 'dnn'
-	train_sample = 10
-	train_epochs = 400
-
 	activation = 'softsign'
 	loss = softsign_profit_mean(min_profit)
 
@@ -98,5 +95,5 @@ def analyze(silent = False, min_profit=0.0):
 
 runs = 1
 profit = 0
-for i in range(runs): profit += analyze(False,0)
+for i in range(runs): profit += analyze(silent=False, min_profit=0.0, train_epochs=100)
 print('Testing set profit:', profit/runs)
