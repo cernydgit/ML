@@ -30,10 +30,15 @@ print("TF GPU devices:", tf.config.list_physical_devices('GPU'))
 def softsign_profit_sum(y_true, y_pred):
 	return -K.sum(y_true * y_pred)
 
-min_profit = 1.2  #velikost lotu ppridat do vypoctu
+#min_profit = 1.2  #velikost lotu pridat do vypoctu tradu
 
-def softsign_profit_mean(y_true, y_pred):
-	return -K.mean(y_true * y_pred -  K.abs(y_pred) * min_profit)
+
+def softsign_profit_mean(min_profit=0):
+	def softsign_profit_mean(y_true, y_pred):
+		return -K.mean(y_true * y_pred -  K.abs(y_pred) * min_profit)
+	return softsign_profit_mean;
+
+
 
 def create_graph(silent = False):
 	g = graph.Graph()
@@ -62,7 +67,7 @@ def create_graph(silent = False):
 		g.plot_indicator(start=100, length=400)
 	return g
 
-def analyze(silent = False):
+def analyze(silent = False, min_profit=0.0):
 	g = create_graph(silent)
 
 	train_type = 'dnn'
@@ -70,7 +75,7 @@ def analyze(silent = False):
 	train_epochs = 400
 
 	activation = 'softsign'
-	loss = softsign_profit_mean
+	loss = softsign_profit_mean(min_profit)
 
 	#activation = 'linear'
 	#loss = tf.keras.losses.MeanAbsoluteError()
@@ -93,5 +98,5 @@ def analyze(silent = False):
 
 runs = 1
 profit = 0
-for i in range(runs): profit += analyze(False)
+for i in range(runs): profit += analyze(False,0)
 print('Testing set profit:', profit/runs)
