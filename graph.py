@@ -154,7 +154,7 @@ class Graph:
         #self.model.add(LSTM(sample_size))
         self.model.add(LSTM(units=rnn_units, input_shape=(sample_size, x_data.shape[2])))
         self.model.add(Dense(1, activation=final_activation))
-        #self.model.summary()
+        #self.model.summary() 
         test_loss,test_metric,y_test,y_pred = deepblue.execute(self.model, x_data, y_data, loss=loss, metric=loss, epochs=epochs, normalize=normalize)            
 
         if self.file is not None:
@@ -263,13 +263,24 @@ class Graph:
 
         self.series['equity'] = np.array(equity)
 
+        avg_profit = np.nan
+        total_profit = np.nan
+        success_rate = np.nan
+        profit_factor = np.nan
+
         if len(self.trades) > 0:
-            msg = 'Sig:' + str(min_signal) + ', P:' + str(self.trade_profit) + ', Avg:' + str(self.trade_profit / len(self.trades)) + ', SR:' + str(100 * success_trades/len(self.trades)) + ', PF:' + str(gross_profit/gross_loss) + ', D:' + str(max_dropdown) + ', T: ' + str(len(self.trades))
+            avg_profit = self.trade_profit / len(self.trades)
+            total_profit = self.trade_profit
+            success_rate = 100 * success_trades/len(self.trades)
+            profit_factor = gross_profit/gross_loss
+            msg = 'Sig:' + str(min_signal) + ', P:' + str(total_profit) + ', Avg:' + str(avg_profit) + ', SR:' + str(success_rate) + ', PF:' + str(profit_factor) + ', D:' + str(max_dropdown) + ', T: ' + str(len(self.trades))
         else:
             msg = 'Profit: 0'
+
         if silent == False:
             print(msg)
-        return msg
+
+        return total_profit, avg_profit, profit_factor, success_rate, len(self.trades)
 
 
 
@@ -509,13 +520,7 @@ class Graph:
         return 'HALT'
 
         
-
-    def analyze(self, start_period=3, end_period=15, step_period=2, start_signal=0, stop_signal=1, step_signal=1):
-        for p in range(start_period, end_period, step_period):
-            for s in range (start_signal, stop_signal, step_signal):
-                self.compute_trend_difference(period = p, min_difference=0, discrete=False)
-                print('Period:', p , self.trade(min_signal=s, silent=True))
-    
+   
 
     def sgn(self, val, limit=0):
         if val < -limit:
@@ -535,11 +540,12 @@ class Graph:
         plt.plot(balance)
 
     def show_result(self, show_start=0, show_length=0, min_signal=0 ):
-        self.trade(min_signal=min_signal)
+        result = self.trade(min_signal=min_signal)
         if (show_length == 0): show_length = len(self.close() - show_start)
         self.plot_equity(start=show_start, length=show_length)
         self.plot_graph(start=show_start, length=show_length, plot_trades = True, filter='input:graph:close')
         self.plot_indicator(start=show_start, length=show_length, filter='ml:ind:')
+        return result
 
     def jma(self, period, phase):
         self.series['input:graph:jma:'+str(period)+':'+str(phase)] = ta2.jma(self.close(), period, phase)

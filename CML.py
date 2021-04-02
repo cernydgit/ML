@@ -20,6 +20,7 @@ import keras.backend as K
 import time
 import pandas as pd
 import matplotlib.pyplot as plt
+import operator
 
 
 importlib.reload(graph)
@@ -89,39 +90,53 @@ def analyze(g, silent = False, train_sample = 10, min_profit=0.0, 	train_epochs 
 	if not silent:
 		print('Profit:', -profit, 'Train time:', time.time()-start)
 		g.show_result(100,400, min_signal=0.5)
-		g.show_result(min_signal=0.5)
+		g.show_result(min_signal=0)
 
-	return -testing_set_loss
+	total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(silent=True)
+	return -testing_set_loss, total_profit, avg_profit, profit_factor, success_rate, trades
 
 
 #%% RUN
 
+train_sample_range = range(10,11,1)
+min_profit_range = list(np.arange(0.0, 2, 1))
 
 silent = True
-runs = 3
-train_sample_range = range(10,11,1)
-min_profit_range = list(np.arange(0.0, 2.0, 0.4))
+runs = 1
 result = []
 
 graph = create_graph(silent = False)
 
 for train_sample in train_sample_range:
 	for min_profit in min_profit_range:
-		profit = 0
-		for i in range(runs): profit += analyze(graph, silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100)
-		result.append([train_sample, min_profit, profit/runs + min_profit])
+		sum = (0, 0, 0, 0, 0, 0)
+		for i in range(runs): 
+			part = analyze(graph, silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100)
+			sum = tuple(map(operator.add, sum, part))
+		test_profit, total_profit, avg_profit, profit_factor, success_rate, trades =  tuple(map(lambda x: x/runs, sum))
+		result.append([train_sample, min_profit, test_profit + min_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
-frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'profit'])
+frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
+print("RESULTS:")
 print(frame)
+print("CORRELATION:")
 print(frame.corr())
 
-for i in range(len(frame.columns)-1):
-	frame.plot(kind = 'scatter', x = frame.columns[i], y = frame.columns[-1])
+for i in range(len(frame.columns)-6):
+	print("CORRELATION: ", frame.columns[i])
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'test_profit')
 	plt.show()
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'total_profit')
+	plt.show()
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'profit_factor')
+	plt.show()
+
 
 #%% SHOW
 
-row_index = len(frame-1)
-row = frame.loc[row_index]
-analyze(graph, silent=False, train_sample=row['train_sample'], min_profit=row['min_profit'], train_epochs=100)
+def analyze_row(graph, row_index):
+	row = frame.loc[0]
+	analyze(graph, silent=False, train_sample=int(row['train_sample']), min_profit=row['min_profit'], train_epochs=100)
+
+#analyze_row(graph,len(frame)-1)
 
