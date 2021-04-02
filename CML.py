@@ -1,4 +1,4 @@
-#%% GENERATE/LOAD
+#%% INIT
 
 #conda create -n ml python=3.7 pandas jupyter seaborn scikit-learn keras tensorflow
 #conda activate ml
@@ -18,6 +18,8 @@ import numpy as np
 import tensorflow as tf
 import keras.backend as K
 import time
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 importlib.reload(graph)
@@ -67,9 +69,8 @@ def create_graph(silent = False):
 		g.plot_indicator(start=100, length=400)
 	return g
 
-def analyze(silent = False, train_sample = 10, min_profit=0.0, 	train_epochs = 100):
-	g = create_graph(silent)
-
+def analyze(g, silent = False, train_sample = 10, min_profit=0.0, 	train_epochs = 100):
+	
 	train_type = 'dnn'
 	activation = 'softsign'
 	loss = softsign_profit_mean(min_profit)
@@ -81,19 +82,46 @@ def analyze(silent = False, train_sample = 10, min_profit=0.0, 	train_epochs = 1
 
 	metric = 0
 	if train_type == 'rnn':
-		profit, metric, y_test, y_pred = g.train_rnn(rnn_units=10,sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, loss=loss, final_activation=activation) 
+		testing_set_loss, metric, y_test, y_pred = g.train_rnn(rnn_units=10,sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, loss=loss, final_activation=activation) 
 	else:
-		profit, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, dropout=0, loss=loss, final_activation=activation) 
+		testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, dropout=0, loss=loss, final_activation=activation) 
 
 	if not silent:
 		print('Profit:', -profit, 'Train time:', time.time()-start)
 		g.show_result(100,400, min_signal=0.5)
 		g.show_result(min_signal=0.5)
 
-	return -profit
+	return -testing_set_loss
 
 
-runs = 1
-profit = 0
-for i in range(runs): profit += analyze(silent=False, min_profit=0.0, train_epochs=100)
-print('Testing set profit:', profit/runs)
+#%% RUN
+
+
+silent = True
+runs = 3
+train_sample_range = range(10,11,1)
+min_profit_range = list(np.arange(0.0, 2.0, 0.4))
+result = []
+
+graph = create_graph(silent = False)
+
+for train_sample in train_sample_range:
+	for min_profit in min_profit_range:
+		profit = 0
+		for i in range(runs): profit += analyze(graph, silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100)
+		result.append([train_sample, min_profit, profit/runs + min_profit])
+
+frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'profit'])
+print(frame)
+print(frame.corr())
+
+for i in range(len(frame.columns)-1):
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = frame.columns[-1])
+	plt.show()
+
+#%% SHOW
+
+row_index = len(frame-1)
+row = frame.loc[row_index]
+analyze(graph, silent=False, train_sample=row['train_sample'], min_profit=row['min_profit'], train_epochs=100)
+

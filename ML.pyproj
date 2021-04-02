@@ -32,6 +32,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ML.py" />
+    <Compile Include="pandas_lab.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="ta2.py">
       <SubType>Code</SubType>
     </Compile>
