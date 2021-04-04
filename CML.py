@@ -21,6 +21,7 @@ import time
 import pandas as pd
 import matplotlib.pyplot as plt
 import operator
+from IPython.display import display
 
 
 importlib.reload(graph)
@@ -42,6 +43,9 @@ def softsign_profit_mean(min_profit=0):
 	return softsign_profit_mean;
 
 
+def floatrange(start,end,step):
+	return list(np.arange(start, end, step))
+
 
 def create_graph(silent = False):
 	g = graph.Graph()
@@ -60,7 +64,7 @@ def create_graph(silent = False):
 	#g.jma(15,100)
 	#g.jmacd(5,1,100)
 	#g.jmacd(15,1,100)
-	g.jmacd(15,5,100)
+	#g.jmacd(15,5,100)
 	#g.jmacd(30,1,100)
 	#g.jmacd(50,1,100)
 	#g.compute_target_momentum(1)
@@ -70,7 +74,7 @@ def create_graph(silent = False):
 		g.plot_indicator(start=100, length=400)
 	return g
 
-def analyze(g, silent = False, train_sample = 10, min_profit=0.0, 	train_epochs = 100):
+def analyze(g, silent = False, train_sample = 10, min_profit=0.0, train_epochs = 100, min_signal=0.1):
 	
 	train_type = 'dnn'
 	activation = 'softsign'
@@ -88,18 +92,18 @@ def analyze(g, silent = False, train_sample = 10, min_profit=0.0, 	train_epochs 
 		testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, dropout=0, loss=loss, final_activation=activation) 
 
 	if not silent:
-		print('Profit:', -profit, 'Train time:', time.time()-start)
-		g.show_result(100,400, min_signal=0.5)
-		g.show_result(min_signal=0)
+		print('Profit:', -testing_set_loss, 'Train time:', time.time()-start)
+		g.show_result(100,400, min_signal)
+		g.show_result(min_signal=min_signal)
 
-	total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(silent=True)
+	total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal = min_signal, silent=True)
 	return -testing_set_loss, total_profit, avg_profit, profit_factor, success_rate, trades
 
 
-#%% RUN
+#%% RUN ----------------------------------------------------------------------------------
 
 train_sample_range = range(10,11,1)
-min_profit_range = list(np.arange(0.0, 2, 1))
+min_profit_range = floatrange(0.0, 3, 0.1)
 
 silent = True
 runs = 1
@@ -114,29 +118,42 @@ for train_sample in train_sample_range:
 			part = analyze(graph, silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100)
 			sum = tuple(map(operator.add, sum, part))
 		test_profit, total_profit, avg_profit, profit_factor, success_rate, trades =  tuple(map(lambda x: x/runs, sum))
-		result.append([train_sample, min_profit, test_profit + min_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
+		result.append([train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
-frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
-print("RESULTS:")
-print(frame)
-print("CORRELATION:")
-print(frame.corr())
+frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
-for i in range(len(frame.columns)-6):
-	print("CORRELATION: ", frame.columns[i])
-	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'test_profit')
-	plt.show()
+for i in range(len(frame.columns)-7):
+	print("CORRELATION: ", frame.columns[i], " --------------------------------------------------")
+	#frame.plot(kind = 'scatter', x = frame.columns[i], y = 'test_profit')
+	#plt.show()
+	#frame.plot(kind = 'scatter', x = frame.columns[i], y = 'clean_test_profit')
+	#plt.show()
 	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'total_profit')
 	plt.show()
-	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'profit_factor')
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'avg_profit')
 	plt.show()
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'success_rate')
+	plt.show()
+	#frame.plot(kind = 'scatter', x = frame.columns[i], y = 'profit_factor')
+	#plt.show()
+	frame.plot(kind = 'scatter', x = frame.columns[i], y = 'trades')
+	plt.show()
+
+pd.set_option('display.width', 400)
+print("\nRESULTS:")
+print(frame)
+print("\nCORRELATION:")
+print(frame.corr())
+
+
 
 
 #%% SHOW
 
 def analyze_row(graph, row_index):
-	row = frame.loc[0]
+	row = frame.loc[row_index]
 	analyze(graph, silent=False, train_sample=int(row['train_sample']), min_profit=row['min_profit'], train_epochs=100)
 
 #analyze_row(graph,len(frame)-1)
+analyze_row(graph,0)
 

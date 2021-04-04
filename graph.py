@@ -243,7 +243,7 @@ class Graph:
                 if (trade is not None):
                     trade[1] = i
                     self.trades.append(trade)
-                    profit = (self.close()[trade[1]] - self.close()[trade[0]]) * self.sgn(trade[2]) - self.trade_spread
+                    profit = (self.close()[trade[1]] - self.close()[trade[0]]) * trade[2] - self.trade_spread
                     self.trade_profit += profit
                     if profit > 0:
                         success_trades += 1
@@ -255,7 +255,7 @@ class Graph:
                 if (abs(signal) > min_signal): trade = [i,-1,self.sgn(signal)]
 
             eq = self.trade_profit
-            if trade is not None: eq += (self.close()[i] - self.close()[trade[0]]) * self.sgn(trade[2])
+            if trade is not None: eq += (self.close()[i] - self.close()[trade[0]]) * trade[2]
             equity.append(eq)
             if eq > max_equity: max_equity = eq
             dropdown = max_equity - eq 
