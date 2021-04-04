@@ -466,6 +466,13 @@ class Graph:
         self.series['ml:ind:target'] = np.array(r)
         self.series['ml:graph:target'] = np.array(r+self.close())
 
+    def compute_jma_complex(self, period, phase):
+        self.jma(period,phase)
+        self.jmamom(period,phase)
+        self.jmacd(period,1,phase)
+        self.jmacd(period,5,phase)
+
+
     def compute_target_low(self, period):
         r = []
         for i in range(len(self.close())-period):

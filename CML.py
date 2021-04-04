@@ -53,21 +53,7 @@ def create_graph(silent = False):
 	#g.load("US500240.csv")
 	#g.load("AUDNZD240.csv")
 	#g.load("USDJPY240.csv")
-	#g.compute_ema(15,16,1000)
-	#g.jmacd(15,3,100)
-	#g.jma(5,100)
-	#g.jma(70,100)
-	##g.jmamom(15,100)
-	#g.jmamom(5,100)
-	#g.jma(30,100)
-	#g.jma(50,100)
-	#g.jma(15,100)
-	#g.jmacd(5,1,100)
-	#g.jmacd(15,1,100)
-	#g.jmacd(15,5,100)
-	#g.jmacd(30,1,100)
-	#g.jmacd(50,1,100)
-	#g.compute_target_momentum(1)
+	g.compute_jma_complex(15,100)
 	g.compute_target_difference(10)
 	if silent == False:
 		g.plot_graph(start=100, length=400)
@@ -93,7 +79,7 @@ def analyze(g, silent = False, train_sample = 10, min_profit=0.0, train_epochs =
 
 	if not silent:
 		print('Profit:', -testing_set_loss, 'Train time:', time.time()-start)
-		g.show_result(100,400, min_signal)
+		#g.show_result(100,400, min_signal)
 		g.show_result(min_signal=min_signal)
 
 	total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal = min_signal, silent=True)
@@ -106,7 +92,7 @@ train_sample_range = range(10,11,1)
 min_profit_range = floatrange(0.0, 3, 0.1)
 
 silent = True
-runs = 1
+runs = 3
 result = []
 
 graph = create_graph(silent = False)
