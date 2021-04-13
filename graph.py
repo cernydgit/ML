@@ -25,8 +25,6 @@ def IntPortion(param):
 
 
 class Graph:
-    #series = {}
-    #trades = []
     trade_profit = 0
     trade_spread = 0
     model = None
@@ -594,14 +592,43 @@ class Graph:
         total_profit, avg_profit, profit_factor, success_rate, trades = self.trade(min_signal = min_signal, silent=True)
         return -testing_set_loss, total_profit, avg_profit, profit_factor, success_rate, trades
 
+    def generate_zigzag(self, point_count = 1000, min_trend_legth = 10, max_trend_length = 100, min_noise=0.1, max_noise=5, max_trend_strength=1.5, seed = None):
+        self.trades.clear()
+        rnd.seed(seed)
+        y = []
+        while True:
+            last_y = y[-1] if len(y) > 0 else 0
+            noise = min_noise + (max_noise - min_noise) * rnd.random()
+            trend_legth = int(min_trend_legth + (max_trend_length - min_trend_legth) * rnd.random())
+            trend_k = rnd.random() * 2 - 1
+            trend_dir = self.sgn(trend_k);
+            trend_k *= max_trend_strength
+            trend_k = pow(trend_k,2) * trend_dir;
+
+            for i in range(trend_legth):
+                y.append(last_y + i * trend_k + (noise * (rnd.random() * 2 - 1)))
+                if len(y) >= point_count: 
+                    #self.series['input:graph:close'] = self.scale_min_max(np.array(y))
+                    self.series['input:graph:close'] = np.array(y)
+                    return
+
+    def prepare_training(self, silent = False, jma_period=15):
+        #self.compute_jma_complex(jma_period,100)
+        self.compute_target_difference(10)
+        if silent == False:
+            self.plot_graph(start=100, length=200)
+            self.plot_indicator(start=100, length=200)
+
+
 
 
 def create_generated_cycle_graph(silent = False, jma_period=15):
 	g = Graph()
-	g.generate(trend=40, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
+	g.generate(trend=40, noise=2, loops=500,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
 	g.compute_jma_complex(jma_period,100)
 	g.compute_target_difference(10)
 	if silent == False:
 		g.plot_graph(start=100, length=400)
 		g.plot_indicator(start=100, length=400)
 	return g
+

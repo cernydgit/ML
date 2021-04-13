@@ -25,28 +25,36 @@ print("TF version:", tf.__version__)
 print("TF CUDA build:", tf.test.is_built_with_cuda()) 
 print("TF GPU devices:", tf.config.list_physical_devices('GPU'))
 
+#g = graphlib.Graph()
+#g.generate_zigzag(point_count=10000, noise=3, min_trend_legth = 3, max_trend_length = 30)
+#g.plot_graph(start=100, length=1000)
+
+
 def floatrange(start,end,step):
 	return list(np.arange(start, end, step))
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(10,11,10000)
-min_profit_range = floatrange(0, 2, 0.5)
-jma_period = 15
+train_sample_range = range(10,15,100)
+min_profit_range = floatrange(3, 10, 100)
+jma_period_range = range(1,50,100)
 min_signal = 0.1
 silent = True
 
 result = []
 graphs = []
 
-for train_sample in train_sample_range:
-	for min_profit in min_profit_range:
-		sum = (0, 0, 0, 0, 0, 0)
-		graphs.append(graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period))
-		test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = graphs[-1].analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-		result.append([train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
+for jma_period in jma_period_range:
+	for train_sample in train_sample_range:
+		for min_profit in min_profit_range:
+			g = graphlib.Graph()
+			g.generate_zigzag(point_count=10000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+			g.prepare_training(jma_period=jma_period)
+			graphs.append(g)
+			test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
+			result.append([jma_period, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
-frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
+frame = pd.DataFrame(result, columns = ['jma_period','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
 if (len(result) > 1):
 	for i in range(len(frame.columns)-7):
@@ -80,25 +88,4 @@ graphs[0].show_result(min_signal=min_signal)
 print("Done.")
 
 
-#%% MYSTERY
-graphs = []
-
-#g1 = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
-g1 = graphlib.Graph()
-#g1.generate(trend=40, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
-g1.series['input:graph:close'] = [333,666] 
-g1.file = "g1";
-g1.plot_graph(start=100, length=200)
-
-#g2 = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
-g2 = graphlib.Graph()
-#g2.generate(trend=0, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
-g2.file = "g2";
-g2.series['input:graph:close'] = [666, 333]
-g2.plot_graph(start=100, length=200)
-
-print("g1:", g1.file, g1.series)
-g1.plot_graph(start=100, length=200)
-print("g2:", g2.file, g2.series)
-g2.plot_graph(start=100, length=200)
 
