@@ -35,11 +35,11 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(10,12,100)
-min_profit_range = floatrange(1.5, 4, 0.1)
+train_sample_range = range(3,100,100)
+min_profit_range = floatrange(1, 2.5, 0.1)
 jma_period_range = range(15,60, 100)
 jma_phase_range = range(100,101,100)
-target_divergence_range = range(1,20,1)
+target_divergence_range = range(2,6,1)
 
 min_signal = 0.1
 silent = True
@@ -57,9 +57,9 @@ for jma_period in jma_period_range:
 					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
 					graphs.append(g)
 					test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-					result.append([jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
+					result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
-frame = pd.DataFrame(result, columns = ['jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
+frame = pd.DataFrame(result, columns = ['divergence_period','jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
 if (len(result) > 1):
 	for i in range(len(frame.columns)-7):
