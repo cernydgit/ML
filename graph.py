@@ -5,6 +5,8 @@ import numpy as np
 import random as rnd
 import pandas as pd
 import math
+import time
+from softsign_profit import softsign_profit_mean
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import LSTM
@@ -286,18 +288,18 @@ class Graph:
 
 
 
-    def plot_equity(self, start=0, length=0, fig_x=25, fig_y=5):
+    def plot_equity(self, start=0, length=0, fig_x=22, fig_y=4):
         self.plot_series('equity', start=start, length=length, fig_x=fig_x, fig_y=fig_y, plot_trades=False)
 
 
-    def plot_graph(self,  filter=':graph', start=0, length=0, fig_x=25, fig_y=5, plot_trades=True):
+    def plot_graph(self,  filter=':graph', start=0, length=0, fig_x=22, fig_y=4, plot_trades=True):
         self.plot_series(filter, start=start, length=length, fig_x=fig_x, fig_y=fig_y, plot_trades=plot_trades)
 
-    def plot_indicator(self, filter=':ind', start=0, length=0, fig_x=25, fig_y=3):
+    def plot_indicator(self, filter=':ind', start=0, length=0, fig_x=22, fig_y=2.5):
         self.plot_series(filter, start=start, length=length, fig_x=fig_x, fig_y=fig_y)
 
 
-    def plot_series(self, filter, start=0, length=0, fig_x=25, fig_y=5, plot_trades=False):
+    def plot_series(self, filter, start=0, length=0, fig_x=22, fig_y=5, plot_trades=False):
         plt.figure(figsize=(fig_x,fig_y))
         count= len(self.close())
 
@@ -564,3 +566,37 @@ class Graph:
         self.series['input:ind:jmamom:'+str(jma_period)+':'+str(jma_phase)+':'+str(mom_period)] = ta2.jmamom(self.close(), jma_period,  jma_phase, mom_period)
 
 
+    def analyze(self, silent = False, train_sample = 10, min_profit=0.0, train_epochs = 100, min_signal=0.1):
+        train_type = 'dnn'
+        activation = 'softsign'
+        loss = softsign_profit_mean(min_profit)
+
+	    #activation = 'linear'
+	    #loss = tf.keras.losses.MeanAbsoluteError()
+
+        start = time.time()
+        metric = 0
+        if train_type == 'rnn':
+            testing_set_loss, metric, y_test, y_pred = self.train_rnn(rnn_units=10,sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, loss=loss, final_activation=activation) 
+        else:
+            testing_set_loss, metric, y_test, y_pred = self.train_dnn(sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, dropout=0, loss=loss, final_activation=activation) 
+
+        if not silent:
+            print('Profit:', -testing_set_loss, 'Train time:', time.time()-start)
+            self.show_result(100,400, min_signal)
+            self.show_result(min_signal=min_signal)
+
+        total_profit, avg_profit, profit_factor, success_rate, trades = self.trade(min_signal = min_signal, silent=True)
+        return -testing_set_loss, total_profit, avg_profit, profit_factor, success_rate, trades
+
+
+
+def create_generated_cycle_graph(silent = False, jma_period=15):
+	g = Graph()
+	g.generate(trend=40, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
+	g.compute_jma_complex(jma_period,100)
+	g.compute_target_difference(10)
+	if silent == False:
+		g.plot_graph(start=100, length=400)
+		g.plot_indicator(start=100, length=400)
+	return g
