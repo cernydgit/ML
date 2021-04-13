@@ -35,9 +35,12 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(10,15,100)
-min_profit_range = floatrange(3, 10, 100)
-jma_period_range = range(1,50,100)
+train_sample_range = range(10,12,100)
+min_profit_range = floatrange(1.5, 4, 0.1)
+jma_period_range = range(15,60, 100)
+jma_phase_range = range(100,101,100)
+target_divergence_range = range(1,20,1)
+
 min_signal = 0.1
 silent = True
 
@@ -45,16 +48,18 @@ result = []
 graphs = []
 
 for jma_period in jma_period_range:
-	for train_sample in train_sample_range:
-		for min_profit in min_profit_range:
-			g = graphlib.Graph()
-			g.generate_zigzag(point_count=10000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
-			g.prepare_training(jma_period=jma_period)
-			graphs.append(g)
-			test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-			result.append([jma_period, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
+	for jma_phase in jma_phase_range:
+		for train_sample in train_sample_range:
+			for min_profit in min_profit_range:
+				for target_divergence_period in target_divergence_range:
+					g = graphlib.Graph()
+					g.generate_zigzag(point_count=10000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
+					graphs.append(g)
+					test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
+					result.append([jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
-frame = pd.DataFrame(result, columns = ['jma_period','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
+frame = pd.DataFrame(result, columns = ['jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
 if (len(result) > 1):
 	for i in range(len(frame.columns)-7):

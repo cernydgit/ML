@@ -612,9 +612,9 @@ class Graph:
                     self.series['input:graph:close'] = np.array(y)
                     return
 
-    def prepare_training(self, silent = False, jma_period=15):
-        #self.compute_jma_complex(jma_period,100)
-        self.compute_target_difference(10)
+    def prepare_training(self, silent = False, jma_period=15, jma_phase=100, target_divergence_period=10):
+        self.compute_jma_complex(jma_period,jma_phase)
+        self.compute_target_difference(target_divergence_period)
         if silent == False:
             self.plot_graph(start=100, length=200)
             self.plot_indicator(start=100, length=200)
