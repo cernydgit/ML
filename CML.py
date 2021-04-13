@@ -31,7 +31,7 @@ def floatrange(start,end,step):
 #%% RUN ----------------------------------------------------------------------------------
 
 train_sample_range = range(10,11,10000)
-min_profit_range = floatrange(0, 3, 1000.05)
+min_profit_range = floatrange(0, 2, 0.1)
 jma_period = 15
 min_signal = 0.1
 silent = True
@@ -43,8 +43,8 @@ graphs = []
 for train_sample in train_sample_range:
 	for min_profit in min_profit_range:
 		sum = (0, 0, 0, 0, 0, 0)
-		graph = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
 		for i in range(runs): 
+			graph = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
 			part = graph.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
 			sum = tuple(map(operator.add, sum, part))
 		test_profit, total_profit, avg_profit, profit_factor, success_rate, trades =  tuple(map(lambda x: x/runs, sum))
