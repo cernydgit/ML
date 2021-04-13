@@ -31,11 +31,10 @@ def floatrange(start,end,step):
 #%% RUN ----------------------------------------------------------------------------------
 
 train_sample_range = range(10,11,10000)
-min_profit_range = floatrange(0, 2, 0.1)
+min_profit_range = floatrange(0, 2, 0.5)
 jma_period = 15
 min_signal = 0.1
 silent = True
-runs = 1
 
 result = []
 graphs = []
@@ -43,13 +42,9 @@ graphs = []
 for train_sample in train_sample_range:
 	for min_profit in min_profit_range:
 		sum = (0, 0, 0, 0, 0, 0)
-		for i in range(runs): 
-			graph = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
-			part = graph.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-			sum = tuple(map(operator.add, sum, part))
-		test_profit, total_profit, avg_profit, profit_factor, success_rate, trades =  tuple(map(lambda x: x/runs, sum))
+		graphs.append(graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period))
+		test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = graphs[-1].analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
 		result.append([train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
-		graphs.append(graph)
 
 frame = pd.DataFrame(result, columns = ['train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
@@ -83,3 +78,27 @@ graphs[0].show_result(100,400, min_signal)
 print("TRADES COMPLETE  --------------------------------------------------")
 graphs[0].show_result(min_signal=min_signal)
 print("Done.")
+
+
+#%% MYSTERY
+graphs = []
+
+#g1 = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
+g1 = graphlib.Graph()
+#g1.generate(trend=40, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
+g1.series['input:graph:close'] = [333,666] 
+g1.file = "g1";
+g1.plot_graph(start=100, length=200)
+
+#g2 = graphlib.create_generated_cycle_graph(silent = False, jma_period = jma_period)
+g2 = graphlib.Graph()
+#g2.generate(trend=0, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2) 	#g.load("US500240.csv")
+g2.file = "g2";
+g2.series['input:graph:close'] = [666, 333]
+g2.plot_graph(start=100, length=200)
+
+print("g1:", g1.file, g1.series)
+g1.plot_graph(start=100, length=200)
+print("g2:", g2.file, g2.series)
+g2.plot_graph(start=100, length=200)
+

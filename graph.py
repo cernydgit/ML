@@ -25,8 +25,8 @@ def IntPortion(param):
 
 
 class Graph:
-    series = {}
-    trades = []
+    #series = {}
+    #trades = []
     trade_profit = 0
     trade_spread = 0
     model = None
@@ -34,6 +34,11 @@ class Graph:
     #graph_path = 'C:/Users/dcerny/AppData/Roaming/MetaQuotes/Terminal/A270C22676FD87E1F4CE8044BDE1756D/MQL4/Files/'
     graph_path = 'C:/!Code/ML/Symbols/'
     model_path = './Models/'
+
+
+    def __init__(self):
+        self.series = {}
+        self.trades = []
 
 
     def load(self, file, spread = 0, max_records = 0, start = 0, silent=False):
