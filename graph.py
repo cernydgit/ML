@@ -238,8 +238,8 @@ class Graph:
 
         for i in range(0, len(signals)):
             signal = signals[i] 
-            if trade is None or self.sgn(signal,min_signal) != self.sgn(trade[2]): 
-            #if trade is None or self.sgn(signal,min_signal) == -self.sgn(trade[2]):
+            #if trade is None or self.sgn(signal,min_signal) != self.sgn(trade[2]): 
+            if trade is None or self.sgn(signal,min_signal) == -self.sgn(trade[2]):
                 if (trade is not None):
                     trade[1] = i
                     self.trades.append(trade)

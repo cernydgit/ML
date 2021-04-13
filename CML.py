@@ -10,7 +10,7 @@
 
 
 
-import graph
+import graph as graphlib
 import importlib
 import deepblue
 import talib as ta
@@ -24,7 +24,7 @@ import operator
 from IPython.display import display
 
 
-importlib.reload(graph)
+importlib.reload(graphlib)
 importlib.reload(deepblue)
 
 print("TF version:", tf.__version__)
@@ -47,13 +47,13 @@ def floatrange(start,end,step):
 	return list(np.arange(start, end, step))
 
 
-def create_graph(silent = False):
-	g = graph.Graph()
-	g.generate(trend=40, noise=2, loops=50,point_density=20, swing=1, long_swing=0)
+def create_graph(silent = False, jma_period=15):
+	g = graphlib.Graph()
+	g.generate(trend=40, noise=2, loops=50,point_density=20, swing=0.6, long_swing=2)
 	#g.load("US500240.csv")
 	#g.load("AUDNZD240.csv")
 	#g.load("USDJPY240.csv")
-	g.compute_jma_complex(15,100)
+	g.compute_jma_complex(jma_period,100)
 	g.compute_target_difference(10)
 	if silent == False:
 		g.plot_graph(start=100, length=400)
@@ -88,14 +88,14 @@ def analyze(g, silent = False, train_sample = 10, min_profit=0.0, train_epochs =
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(10,11,1)
-min_profit_range = floatrange(0.0, 3, 0.1)
-
+train_sample_range = range(10,11,10000)
+min_profit_range = floatrange(1.5, 3, 1000.05)
+jma_period = 15
 silent = True
-runs = 3
+runs = 1
 result = []
 
-graph = create_graph(silent = False)
+graph = create_graph(silent = False, jma_period = jma_period)
 
 for train_sample in train_sample_range:
 	for min_profit in min_profit_range:
