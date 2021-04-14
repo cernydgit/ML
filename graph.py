@@ -231,7 +231,7 @@ class Graph:
         self.trade_profit = 0
         self.trades.clear()
         equity = []
-        trade = None
+        open_trades = []
         max_dropdown = 0
         max_equity = 0
         success_trades = 0
@@ -243,24 +243,29 @@ class Graph:
 
         for i in range(0, len(signals)):
             signal = signals[i] 
-            #if trade is None or self.sgn(signal,min_signal) != self.sgn(trade[2]): 
-            if trade is None or self.sgn(signal,min_signal) == -self.sgn(trade[2]):
-                if (trade is not None):
-                    trade[1] = i
-                    self.trades.append(trade)
-                    profit = (self.close()[trade[1]] - self.close()[trade[0]]) * trade[2] - self.trade_spread
-                    self.trade_profit += profit
-                    if profit > 0:
-                        success_trades += 1
-                        gross_profit += profit
-                    if profit < 0:
-                        loss_trades += 1
-                        gross_loss -= profit 
-                    trade = None
-                if (abs(signal) > min_signal): trade = [i,-1,self.sgn(signal)]
+            
+            if (abs(signal) > min_signal): 
+                # close open trades in oposite direction
+                if len(open_trades) > 0 and self.sgn(signal,min_signal) == -self.sgn(open_trades[0][2]): #if trade is None or self.sgn(signal,min_signal) != self.sgn(trade[2]): 
+                    # close open trades
+                    for trade in open_trades:
+                        trade[1] = i
+                        self.trades.append(trade)
+                        profit = (self.close()[trade[1]] - self.close()[trade[0]]) * trade[2] - self.trade_spread
+                        self.trade_profit += profit
+                        if profit > 0:
+                            success_trades += 1
+                            gross_profit += profit
+                        if profit < 0:
+                            loss_trades += 1
+                            gross_loss -= profit 
+                    open_trades.clear()
+                # open trade
+                open_trades.append([i,-1,self.sgn(signal)]) #not sgn no sgn when opening trades
 
             eq = self.trade_profit
-            if trade is not None: eq += (self.close()[i] - self.close()[trade[0]]) * trade[2]
+            for trade in open_trades:
+                eq += (self.close()[i] - self.close()[trade[0]]) * trade[2]
             equity.append(eq)
             if eq > max_equity: max_equity = eq
             dropdown = max_equity - eq 

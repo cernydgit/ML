@@ -41,7 +41,7 @@ jma_period_range = range(15,60, 100)
 jma_phase_range = range(100,101,100)
 target_divergence_range = range(2,6,100)
 
-min_signal = 0.02
+min_signal = 0.1
 silent = True
 
 result = []
