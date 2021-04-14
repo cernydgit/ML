@@ -18,6 +18,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import operator
 from IPython.display import display
+from softsign_profit import softsign_profit_mean
 
 importlib.reload(graphlib)
 importlib.reload(deepblue)
@@ -34,6 +35,8 @@ def floatrange(start,end,step):
 	return list(np.arange(start, end, step))
 
 #%% RUN ----------------------------------------------------------------------------------
+
+point_count = 100000
 
 train_sample_range = range(5,50,100)
 min_profit_range = floatrange(2, 6, 100)
@@ -54,9 +57,31 @@ for jma_period in jma_period_range:
 				for target_divergence_period in target_divergence_range:
 					g = graphlib.Graph()
 					graphs.append(g)
-					g.generate_zigzag(point_count=50000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+					g.generate_zigzag(point_count=point_count, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+					print('TRAINING:')
 					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
-					test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
+					#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
+					testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, epochs=100, dropout=0, loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+					test_profit = -testing_set_loss 
+					
+					#g.show_result(100,400, min_signal)
+					#g.show_result(min_signal=min_signal)
+
+					g.trade(min_signal=min_signal, silent = False)
+					g.plot_equity()
+					#self.plot_graph(start=show_start, length=show_length, plot_trades = True, filter='input:graph:close')
+					#self.plot_indicator(start=show_start, length=show_length, filter='ml:ind:trained')
+
+
+					print('REAL:')
+
+					g.generate_zigzag(point_count=point_count, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, silent=True)
+					g.evaluate(sample_size=train_sample, min_signal=min_signal)
+					
+					total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal = min_signal, silent=False)
+					g.plot_equity()
+
 					result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
 frame = pd.DataFrame(result, columns = ['divergence_period','jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
@@ -86,10 +111,10 @@ if (len(result) > 1):
 	print(frame.corr())
 
 #%% SHOW
-print("TRADES SEGMENT  --------------------------------------------------")
-graphs[0].show_result(100,400, min_signal)
-print("TRADES COMPLETE  --------------------------------------------------")
-graphs[0].show_result(min_signal=min_signal)
+#print("TRADES SEGMENT  --------------------------------------------------")
+#graphs[0].show_result(100,400, min_signal)
+#print("TRADES COMPLETE  --------------------------------------------------")
+#graphs[0].show_result(min_signal=min_signal)
 
 #g.generate_zigzag(point_count=10000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
 #g.prepare_training(jma_period=15,jma_phase=100, target_divergence_period=2)
