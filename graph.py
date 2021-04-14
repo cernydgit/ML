@@ -121,7 +121,7 @@ class Graph:
 
 
 
-    def train_dnn(self, sample_size, target='ml:graph:target', input_prefix='input:', activation='relu', layers=3, normalize=False, epochs=100, loss='mae', layers_reduction=0, dropout=0, zero_origin=True, final_activation='linear'):
+    def train_dnn(self, sample_size, target='ml:ind:target', input_prefix='input:', activation='relu', layers=3, normalize=False, epochs=100, loss='mae', layers_reduction=0, dropout=0, zero_origin=True, final_activation='linear'):
         self.trades.clear()
         #self.series.pop(target, None)
         x_data, y_data, _ = self.get_train_series_for_dnn(sample_size, target=target, input_prefix=input_prefix, zero_origin=zero_origin)
@@ -150,7 +150,7 @@ class Graph:
         return test_loss, test_metric, y_test, y_pred
 
 
-    def train_rnn(self, sample_size, rnn_units=10, target='ml:graph:target', input_prefix='input:', activation='relu', epochs=100, loss='mae', normalize=False, dropout=0, zero_origin=True, final_activation='linear'):
+    def train_rnn(self, sample_size, rnn_units=10, target='ml:ind:target', input_prefix='input:', activation='relu', epochs=100, loss='mae', normalize=False, dropout=0, zero_origin=True, final_activation='linear'):
         self.trades.clear()
         x_data, y_data, _ = self.get_train_series_for_rnn(sample_size, target=target, input_prefix=input_prefix, zero_origin=zero_origin)
 
@@ -174,7 +174,7 @@ class Graph:
 
 
 
-    def evaluate(self, sample_size, target='ml:graph:trained', input_prefix='', min_signal=0, zero_origin=True): 
+    def evaluate(self, sample_size, target='ml:ind:trained', input_prefix='input:', min_signal=0, zero_origin=True): 
         #if self.file is not None:
         #    self.model = keras.models.load_model(self.model_path + self.file + '.model')
 
@@ -585,9 +585,9 @@ class Graph:
         start = time.time()
         metric = 0
         if train_type == 'rnn':
-            testing_set_loss, metric, y_test, y_pred = self.train_rnn(rnn_units=10,sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, loss=loss, final_activation=activation) 
+            testing_set_loss, metric, y_test, y_pred = self.train_rnn(rnn_units=10,sample_size=train_sample, epochs=train_epochs, loss=loss, final_activation=activation) 
         else:
-            testing_set_loss, metric, y_test, y_pred = self.train_dnn(sample_size=train_sample, target='ml:ind:target', input_prefix='input:', epochs=train_epochs, dropout=0, loss=loss, final_activation=activation) 
+            testing_set_loss, metric, y_test, y_pred = self.train_dnn(sample_size=train_sample, epochs=train_epochs, dropout=0, loss=loss, final_activation=activation) 
 
         if not silent:
             print('Profit:', -testing_set_loss, 'Train time:', time.time()-start)

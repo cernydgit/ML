@@ -35,7 +35,7 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(1,100,100)
+train_sample_range = range(5,50,100)
 min_profit_range = floatrange(2, 6, 100)
 jma_period_range = range(15,60, 100)
 jma_phase_range = range(100,101,100)
@@ -53,10 +53,10 @@ for jma_period in jma_period_range:
 			for min_profit in min_profit_range:
 				for target_divergence_period in target_divergence_range:
 					g = graphlib.Graph()
-					g.generate_zigzag(point_count=10000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
-					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
 					graphs.append(g)
-					test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=4, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
+					g.generate_zigzag(point_count=50000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
+					test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
 					result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
 frame = pd.DataFrame(result, columns = ['divergence_period','jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
@@ -90,6 +90,17 @@ print("TRADES SEGMENT  --------------------------------------------------")
 graphs[0].show_result(100,400, min_signal)
 print("TRADES COMPLETE  --------------------------------------------------")
 graphs[0].show_result(min_signal=min_signal)
+
+#g.generate_zigzag(point_count=10000, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+#g.prepare_training(jma_period=15,jma_phase=100, target_divergence_period=2)
+#g.evaluate(sample_size=4, min_signal=min_signal) #, input_prefix=input_prefix, target=eval_target, zero_origin=zero_origin)
+
+#print("REGEN TRADES SEGMENT  --------------------------------------------------")
+#graphs[0].show_result(100,400, min_signal)
+#print("REGEN TRADES COMPLETE  --------------------------------------------------")
+#graphs[0].show_result(min_signal=min_signal)
+
+
 print("Done.")
 
 
