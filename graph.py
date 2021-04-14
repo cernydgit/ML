@@ -261,7 +261,7 @@ class Graph:
                             gross_loss -= profit 
                     open_trades.clear()
                 # open trade
-                open_trades.append([i,-1,self.sgn(signal)]) #not sgn no sgn when opening trades
+                open_trades.append([i,-1,signal])
 
             eq = self.trade_profit
             for trade in open_trades:
