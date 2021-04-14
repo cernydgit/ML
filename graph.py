@@ -556,7 +556,7 @@ class Graph:
         if (show_length == 0): show_length = len(self.close() - show_start)
         self.plot_equity(start=show_start, length=show_length)
         self.plot_graph(start=show_start, length=show_length, plot_trades = True, filter='input:graph:close')
-        self.plot_indicator(start=show_start, length=show_length, filter='ml:ind:')
+        self.plot_indicator(start=show_start, length=show_length, filter='ml:ind:trained')
         return result
 
     def jma(self, period, phase):

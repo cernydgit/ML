@@ -35,13 +35,13 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(3,100,100)
-min_profit_range = floatrange(1, 2.5, 0.1)
+train_sample_range = range(1,100,100)
+min_profit_range = floatrange(2, 6, 100)
 jma_period_range = range(15,60, 100)
 jma_phase_range = range(100,101,100)
-target_divergence_range = range(2,6,1)
+target_divergence_range = range(2,6,100)
 
-min_signal = 0.1
+min_signal = 0.02
 silent = True
 
 result = []
