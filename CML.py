@@ -38,11 +38,11 @@ def floatrange(start,end,step):
 
 point_count = 10000
 
-train_sample_range = range(5,50,100)
+train_sample_range = range(3,50,100)
 min_profit_range = floatrange(1, 6, 100)
 jma_period_range = range(15,60, 100)
 jma_phase_range = range(100,101,100)
-target_divergence_range = range(2,6,100)
+target_divergence_range = range(2,100,100)
 
 min_signal = 0.05
 silent = True
@@ -61,7 +61,7 @@ for jma_period in jma_period_range:
 					print('TRAINING:')
 					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
 					#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-					testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 6, dropout=0.1, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+					testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 2, layers_reduction=0, dropout=0.1, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 					test_profit = -testing_set_loss 
 					
 					#g.show_result(100,400, min_signal)
