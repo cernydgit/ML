@@ -132,11 +132,11 @@ class Graph:
         self.model.add(Dense(input_size, activation=activation, input_dim = input_size))
         for i in range(layers-1):
             input_size = input_size - layers_reduction
-            self.model.add(Dense(input_size+1, activation=activation))
+            self.model.add(Dense(input_size, activation=activation))
             if dropout>0:
                 self.model.add(Dropout(dropout))
         self.model.add(Dense(1, activation=final_activation))
-        #self.model.summary()
+        self.model.summary()
         test_loss,test_metric,y_test,y_pred = deepblue.execute(self.model, x_data, y_data, loss=loss, metric=loss, epochs=epochs, normalize=normalize)            
 
         if self.file is not None:

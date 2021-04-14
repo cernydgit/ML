@@ -36,10 +36,10 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-point_count = 100000
+point_count = 10000
 
 train_sample_range = range(5,50,100)
-min_profit_range = floatrange(2, 6, 100)
+min_profit_range = floatrange(1, 6, 100)
 jma_period_range = range(15,60, 100)
 jma_phase_range = range(100,101,100)
 target_divergence_range = range(2,6,100)
@@ -61,7 +61,7 @@ for jma_period in jma_period_range:
 					print('TRAINING:')
 					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
 					#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-					testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, epochs=100, dropout=0, loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+					testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 6, dropout=0.1, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 					test_profit = -testing_set_loss 
 					
 					#g.show_result(100,400, min_signal)
@@ -69,9 +69,6 @@ for jma_period in jma_period_range:
 
 					g.trade(min_signal=min_signal, silent = False)
 					g.plot_equity()
-					#self.plot_graph(start=show_start, length=show_length, plot_trades = True, filter='input:graph:close')
-					#self.plot_indicator(start=show_start, length=show_length, filter='ml:ind:trained')
-
 
 					print('REAL:')
 
@@ -81,6 +78,8 @@ for jma_period in jma_period_range:
 					
 					total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal = min_signal, silent=False)
 					g.plot_equity()
+					#g.plot_graph(start=1000, length=200, plot_trades = True, filter='input:graph:close')
+					#g.plot_indicator(start=1000, length=200, filter='ml:ind:trained')
 
 					result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
