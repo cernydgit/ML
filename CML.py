@@ -36,16 +36,16 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-point_count = 10000
+point_count = 30000
 
-train_sample_range = range(3,50,100)
-min_profit_range = floatrange(1, 6, 100)
-jma_period_range = range(15,60, 100)
-jma_phase_range = range(100,101,100)
-target_divergence_range = range(2,100,100)
+train_sample_range = range(5,10,100)
+min_profit_range = floatrange(0, 6, 100)
+jma_period_range = range(6, 60, 500)
+jma_phase_range = range(0,101,1000)
+target_divergence_range = range(2,10,100)
 
 min_signal = 0.05
-silent = True
+runs = 1
 
 result = []
 graphs = []
@@ -55,33 +55,30 @@ for jma_period in jma_period_range:
 		for train_sample in train_sample_range:
 			for min_profit in min_profit_range:
 				for target_divergence_period in target_divergence_range:
-					g = graphlib.Graph()
-					graphs.append(g)
-					g.generate_zigzag(point_count=point_count, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
-					print('TRAINING:')
-					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
-					#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-					testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 2, layers_reduction=0, dropout=0.1, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
-					test_profit = -testing_set_loss 
+					for x in range(runs):
+						g = graphlib.Graph()
+						graphs.append(g)
+						g.generate_zigzag(point_count=point_count, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+
+						print('TRAINING:')
+						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period)
+						#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
+						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 2, layers_reduction=0, dropout=0.1, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+						test_profit = -testing_set_loss 
+						g.trade(min_signal=min_signal, silent = False)
+						g.plot_equity()
+
+						print('REAL:')
+						g.generate_zigzag(point_count=point_count, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
+						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, silent=True)
+						g.evaluate(sample_size=train_sample, min_signal=min_signal)
 					
-					#g.show_result(100,400, min_signal)
-					#g.show_result(min_signal=min_signal)
+						total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal = min_signal, silent=False)
+						g.plot_equity()
+						#g.plot_graph(start=1000, length=200, plot_trades = True, filter='input:graph:close')
+						#g.plot_indicator(start=1000, length=200, filter='ml:ind:trained')
 
-					g.trade(min_signal=min_signal, silent = False)
-					g.plot_equity()
-
-					print('REAL:')
-
-					g.generate_zigzag(point_count=point_count, min_trend_legth = 3, max_trend_length = 10, min_noise=0.1, max_noise=5)
-					g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, silent=True)
-					g.evaluate(sample_size=train_sample, min_signal=min_signal)
-					
-					total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal = min_signal, silent=False)
-					g.plot_equity()
-					#g.plot_graph(start=1000, length=200, plot_trades = True, filter='input:graph:close')
-					#g.plot_indicator(start=1000, length=200, filter='ml:ind:trained')
-
-					result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
+						result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 
 frame = pd.DataFrame(result, columns = ['divergence_period','jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
@@ -104,10 +101,15 @@ if (len(result) > 1):
 		plt.show()
 
 	pd.set_option('display.width', 400)
+	print('\nSUMMARY:')
+	print(frame.describe())
 	print("\nRESULTS:")
 	print(frame)
 	print("\nCORRELATION:")
 	print(frame.corr())
+	#groups
+	#jma_to_pf = frame.groupby(['jma_period'])['profit_factor'].mean().reset_index()
+	#jma_to_pf.plot(kind = 'scatter', x='jma_period',y='profit_factor')
 
 #%% SHOW
 #print("TRADES SEGMENT  --------------------------------------------------")

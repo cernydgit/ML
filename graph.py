@@ -476,11 +476,14 @@ class Graph:
         self.series['ml:ind:target'] = np.array(r)
         self.series['ml:graph:target'] = np.array(r+self.close())
 
-    def compute_jma_complex(self, period, phase):
-        self.jma(period,phase)
-        self.jmamom(period,phase)
-        self.jmacd(period,1,phase)
-        self.jmacd(period,5,phase)
+    def compute_jma_complex(self, period, phase, count=1):
+        for i in range(count):
+            self.jma(period,phase)
+            self.jmamom(period,phase)
+            #self.jmacd(period,1,phase)
+            #self.jmacd(period,int(period/2),phase)
+            #self.jmacd(period,5,phase)
+            period *= 2
 
 
     def compute_target_low(self, period):
@@ -568,10 +571,14 @@ class Graph:
         self.series['input:graph:jma:'+str(period)+':'+str(phase)] = ta2.jma(self.close(), period, phase)
 
     def jmacd(self, slow_period, fast_period, phase):
-        self.series['input:ind:jmacd:'+str(slow_period)+':'+str(fast_period)+':'+str(phase)] = ta2.jmacd(self.close(), slow_period, fast_period, phase)
+        macd = ta2.jmacd(self.close(), slow_period, fast_period, phase)
+        #macd = self.scale_min_max(macd) - 0.5;
+        self.series['input:ind:jmacd:'+str(slow_period)+':'+str(fast_period)+':'+str(phase)] = macd
 
     def jmamom(self, jma_period, jma_phase, mom_period=1):
-        self.series['input:ind:jmamom:'+str(jma_period)+':'+str(jma_phase)+':'+str(mom_period)] = ta2.jmamom(self.close(), jma_period,  jma_phase, mom_period)
+        mom = ta2.jmamom(self.close(), jma_period,  jma_phase, mom_period);
+        #mom = self.scale_min_max(mom) - 0.5;
+        self.series['input:ind:jmamom:'+str(jma_period)+':'+str(jma_phase)+':'+str(mom_period)] = mom
 
 
     def analyze(self, silent = False, train_sample = 10, min_profit=0.0, train_epochs = 100, min_signal=0.1):
@@ -618,11 +625,11 @@ class Graph:
                     return
 
     def prepare_training(self, silent = False, jma_period=15, jma_phase=100, target_divergence_period=10):
-        self.compute_jma_complex(jma_period,jma_phase)
+        self.compute_jma_complex(jma_period,jma_phase,1)
         self.compute_target_difference(target_divergence_period)
         if silent == False:
             self.plot_graph(start=100, length=200)
-            self.plot_indicator(start=100, length=200)
+            self.plot_indicator(start=100, length=200, filter = "input:ind")
 
 
 
