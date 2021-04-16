@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CML_zigzag.py" />
     <Compile Include="deepblue.py" />
     <Compile Include="graph.py" />
     <Compile Include="CML.py" />

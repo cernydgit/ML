@@ -39,7 +39,7 @@ class Graph:
         self.trades = []
 
 
-    def load(self, file, spread = 0, max_records = 0, start = 0, silent=False):
+    def load(self, file, spread = 0, max_records = 0, start = 0, silent=False, mult = 1):
         self.trades.clear()
         self.file = file
         self.trade_spread = spread
@@ -52,7 +52,7 @@ class Graph:
         if max_records>0:
             close = close[:max_records]
 
-        self.series['input:graph:close'] = self.scale_min_max(close)
+        self.series['input:graph:close'] = self.scale_min_max(close) * mult
         #self.series['input:graph:close'] = close
         
         
@@ -139,8 +139,8 @@ class Graph:
         self.model.summary()
         test_loss,test_metric,y_test,y_pred = deepblue.execute(self.model, x_data, y_data, loss=loss, metric=loss, epochs=epochs, normalize=normalize)            
 
-        if self.file is not None:
-            self.model.save(self.model_path + self.file + '.model')
+        #if self.file is not None:
+        #    self.model.save(self.model_path + self.file + '.model')
         
         eval_target = 'ml:graph:trained'
         if 'ind' in target: eval_target = 'ml:ind:trained'
@@ -162,8 +162,8 @@ class Graph:
         #self.model.summary() 
         test_loss,test_metric,y_test,y_pred = deepblue.execute(self.model, x_data, y_data, loss=loss, metric=loss, epochs=epochs, normalize=normalize)            
 
-        if self.file is not None:
-            self.model.save(self.model_path + self.file + '.model')
+        #if self.file is not None:
+        #    self.model.save(self.model_path + self.file + '.model')
 
         eval_target = 'ml:graph:trained'
         if 'ind' in target: eval_target = 'ml:ind:trained'
