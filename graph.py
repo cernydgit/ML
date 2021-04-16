@@ -227,6 +227,7 @@ class Graph:
 
         
     def trade(self, min_signal = 0, silent=False, source='ml:ind:trained'):
+        max_trades = 20
         self.trade_min_signal = min_signal
         self.trade_profit = 0
         self.trades.clear()
@@ -261,7 +262,8 @@ class Graph:
                             gross_loss -= profit 
                     open_trades.clear()
                 # open trade
-                open_trades.append([i,-1,signal])
+                if (len(open_trades) < max_trades):
+                    open_trades.append([i,-1,signal])
 
             eq = self.trade_profit
             for trade in open_trades:
@@ -480,10 +482,10 @@ class Graph:
         for i in range(count):
             self.jma(period,phase)
             self.jmamom(period,phase)
-            #self.jmacd(period,1,phase)
-            #self.jmacd(period,int(period/2),phase)
+            self.jmacd(period,1,phase)
+            self.jmacd(period,int(period/2),phase)
             #self.jmacd(period,5,phase)
-            period *= 2
+            period *= 3
 
 
     def compute_target_low(self, period):
@@ -624,8 +626,8 @@ class Graph:
                     self.series['input:graph:close'] = np.array(y)
                     return
 
-    def prepare_training(self, silent = False, jma_period=15, jma_phase=100, target_divergence_period=10):
-        self.compute_jma_complex(jma_period,jma_phase,1)
+    def prepare_training(self, silent = False, jma_period=15, jma_phase=100, target_divergence_period=10, jma_count=1):
+        self.compute_jma_complex(jma_period,jma_phase,jma_count)
         self.compute_target_difference(target_divergence_period)
         if silent == False:
             self.plot_graph(start=100, length=200)
