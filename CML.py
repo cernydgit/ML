@@ -39,12 +39,12 @@ def floatrange(start,end,step):
 point_count = 30000
 
 train_sample_range = range(1,10,100)
-min_profit_range = floatrange(0, 6, 100)
+min_profit_range = floatrange(0.1, 6, 100)
 jma_period_range = range(10, 60, 500)
 jma_phase_range = range(0,101,1000)
-target_divergence_range = range(2,10,100)
+target_divergence_range = range(2,100,100)
 
-min_signal = 0.05
+min_signal = 0.01
 runs = 1
 
 result = []
@@ -69,8 +69,9 @@ for jma_period in jma_period_range:
 						test_profit = -testing_set_loss 
 						g.trade(min_signal=min_signal, silent = False)
 						g.plot_equity()
-						g.plot_graph(start=1000, length=200, plot_trades = True, filter='input:graph:close')
-						g.plot_indicator(start=1000, length=200, filter='ml:ind:trained')
+						g.plot_equity(start=1000, length=400)
+						g.plot_graph(start=1000, length=400, plot_trades = True, filter='input:graph:close')
+						g.plot_indicator(start=1000, length=400, filter='ml:ind:trained')
 print("Done.")
 
 

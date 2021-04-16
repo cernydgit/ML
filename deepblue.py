@@ -51,7 +51,7 @@ def train_model(model, x_train, y_train, loss, metric, epochs):
     optimizer = keras.optimizers.RMSprop(lr=0.001,rho=0.9, epsilon=1e-08, decay=0.0)
     model.compile(optimizer=optimizer, loss=loss, metrics=[metric]) #, run_eagerly=True)
     #model.run_eagerly=True
-    early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+    early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=10)
     history = model.fit(x_train, y_train, epochs=epochs, validation_split = 0.2, shuffle=True, verbose=0,  callbacks=[early_stop, tfdocs.modeling.EpochDots()])
     print(" done.")
     #plot_history(history, metric)

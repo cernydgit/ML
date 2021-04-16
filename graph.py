@@ -227,7 +227,7 @@ class Graph:
 
         
     def trade(self, min_signal = 0, silent=False, source='ml:ind:trained'):
-        max_trades = 20
+        max_trades = 100
         self.trade_min_signal = min_signal
         self.trade_profit = 0
         self.trades.clear()
@@ -574,12 +574,12 @@ class Graph:
 
     def jmacd(self, slow_period, fast_period, phase):
         macd = ta2.jmacd(self.close(), slow_period, fast_period, phase)
-        #macd = self.scale_min_max(macd) - 0.5;
+        macd = self.scale_min_max(macd) - 0.5;
         self.series['input:ind:jmacd:'+str(slow_period)+':'+str(fast_period)+':'+str(phase)] = macd
 
     def jmamom(self, jma_period, jma_phase, mom_period=1):
         mom = ta2.jmamom(self.close(), jma_period,  jma_phase, mom_period);
-        #mom = self.scale_min_max(mom) - 0.5;
+        mom = self.scale_min_max(mom) - 0.5;
         self.series['input:ind:jmamom:'+str(jma_period)+':'+str(jma_phase)+':'+str(mom_period)] = mom
 
 
