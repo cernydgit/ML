@@ -63,7 +63,7 @@ for jma_period in jma_period_range:
 						g.plot_graph(filter='input:graph:close')
 
 						print('TRAINING:')
-						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=3)
+						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=2)
 						#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
 						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 3, layers_reduction=0, dropout=0.1, epochs=300,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 						test_profit = -testing_set_loss 
