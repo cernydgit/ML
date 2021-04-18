@@ -488,6 +488,15 @@ class Graph:
         r = [np.NaN] * (len(self.close()) - len(r)) + r
         self.series['input:ind:min:'+str(period)] = np.array(r)
 
+    def compute_max_distance(self, period):
+        r = []
+        for i in range(period,len(self.close())+1):
+            segment = self.close()[i-period:i]
+            diff = segment[-1] - np.max(segment);
+            r.append(diff)
+        r = [np.NaN] * (len(self.close()) - len(r)) + r
+        self.series['input:ind:max:'+str(period)] = np.array(r)
+
     def compute_jma_complex(self, period, phase, count=1):
         for i in range(count):
             self.jma(period,phase)
@@ -495,6 +504,8 @@ class Graph:
             self.jmacd(period,1,phase)
             #self.jmacd(period,int(period/2),phase)
             #self.jmacd(period,5,phase)
+            #self.compute_min_distance(period)
+            #self.compute_max_distance(period)
             period *= 3
 
 
