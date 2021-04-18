@@ -52,7 +52,7 @@ def train_model(model, x_train, y_train, loss, metric, epochs):
     model.compile(optimizer=optimizer, loss=loss, metrics=[metric]) #, run_eagerly=True)
     #model.run_eagerly=True
     early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
-    history = model.fit(x_train, y_train, epochs=epochs, validation_split = 0.2, shuffle=True, verbose=0,  callbacks=[early_stop, tfdocs.modeling.EpochDots()])
+    history = model.fit(x_train, y_train,batch_size=128, epochs=epochs, validation_split = 0.2, shuffle=True, verbose=0,  callbacks=[early_stop, tfdocs.modeling.EpochDots()])
     print(" done.")
     #plot_history(history, metric)
     plot_history(history, 'loss')

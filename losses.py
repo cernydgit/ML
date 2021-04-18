@@ -18,8 +18,8 @@ def custom_mae(y_true, y_pred):
 	return x
 
 def softsign_profit(y_true, y_pred):
-	#x = K.mean(y_true * y_pred)
-	x = -K.sum(y_true * y_pred)
+	x = K.mean(y_true * y_pred)
+	#x = -K.sum(y_true * y_pred)
 	print('y_true', y_true)
 	print('y_pred', y_pred)
 	print('loss', x)

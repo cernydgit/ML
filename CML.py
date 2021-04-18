@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 import operator
 from IPython.display import display
 from softsign_profit import softsign_profit_mean
+from softsign_profit import softsign_profit_sum
 
 importlib.reload(graphlib)
 importlib.reload(deepblue)
@@ -64,7 +65,7 @@ for jma_period in jma_period_range:
 						print('TRAINING:')
 						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=3)
 						#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 3, layers_reduction=0, dropout=0.2, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 3, layers_reduction=0, dropout=0.2, epochs=300,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 						test_profit = -testing_set_loss 
 						g.trade(min_signal=min_signal, silent = False)
 						g.plot_equity()
