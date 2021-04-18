@@ -481,9 +481,9 @@ class Graph:
     def compute_jma_complex(self, period, phase, count=1):
         for i in range(count):
             self.jma(period,phase)
-            self.jmamom(period,phase)
+            #self.jmamom(period,phase)
             self.jmacd(period,1,phase)
-            self.jmacd(period,int(period/2),phase)
+            #self.jmacd(period,int(period/2),phase)
             #self.jmacd(period,5,phase)
             period *= 3
 
