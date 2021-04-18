@@ -478,10 +478,20 @@ class Graph:
         self.series['ml:ind:target'] = np.array(r)
         self.series['ml:graph:target'] = np.array(r+self.close())
 
+
+    def compute_min_distance(self, period):
+        r = []
+        for i in range(period,len(self.close())+1):
+            segment = self.close()[i-period:i]
+            diff = segment[-1] - np.min(segment);
+            r.append(diff)
+        r = [np.NaN] * (len(self.close()) - len(r)) + r
+        self.series['input:ind:min:'+str(period)] = np.array(r)
+
     def compute_jma_complex(self, period, phase, count=1):
         for i in range(count):
             self.jma(period,phase)
-            #self.jmamom(period,phase)
+            self.jmamom(period,phase)
             self.jmacd(period,1,phase)
             #self.jmacd(period,int(period/2),phase)
             #self.jmacd(period,5,phase)
