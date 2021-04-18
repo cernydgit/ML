@@ -39,14 +39,14 @@ def floatrange(start,end,step):
 
 point_count = 30000
 
-train_sample_range = range(1,10,100)
-min_profit_range = floatrange(0, 6, 100)
+train_sample_range = range(1,100,100)
+min_profit_range = floatrange(0.0, 6, 100)
 jma_period_range = range(10, 60, 500)
-jma_phase_range = range(0,101,1000)
+jma_phase_range = range(100,101,1000)
 target_divergence_range = range(2,100,100)
 
 min_signal = 0.01
-runs = 10
+runs = 1
 
 result = []
 graphs = []
@@ -59,19 +59,19 @@ for jma_period in jma_period_range:
 					for x in range(runs):
 						g = graphlib.Graph()
 						graphs.append(g)
-						g.load("EURUSD15.csv", start = 40000, max_records = 23000, mult=1000)
+						g.load("EURUSD15.csv", start = 40000, max_records = 20000, mult=1000)
 						g.plot_graph(filter='input:graph:close')
 
 						print('TRAINING:')
 						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=3)
 						#test_profit, total_profit, avg_profit, profit_factor, success_rate, trades = g.analyze(silent=silent, train_sample=train_sample, min_profit=min_profit, train_epochs=100, min_signal = min_signal)
-						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 3, layers_reduction=0, dropout=0.2, epochs=300,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 3, layers_reduction=0, dropout=0.1, epochs=300,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 						test_profit = -testing_set_loss 
 						total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal=min_signal, silent = False)
 						g.plot_equity()
-						g.plot_equity(start=1000, length=400)
-						g.plot_graph(start=1000, length=400, plot_trades = True, filter='input:graph:close')
-						g.plot_indicator(start=1000, length=400, filter='ml:ind:trained')
+						g.plot_equity(start=3000, length=800)
+						g.plot_graph(start=3000, length=800, plot_trades = True, filter='input:graph:close')
+						g.plot_indicator(start=3000, length=800, filter='ml:ind:trained')
 
 						result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
 

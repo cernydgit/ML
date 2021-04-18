@@ -89,16 +89,18 @@ def execute(model, x_data, y_data, loss, metric, epochs, normalize = True):
 
 def train_test_split_tail(x_data, y_data, test_size=0.2):
     train_size = int(len(x_data) * (1-test_size))
-    x_train = x_data[0:train_size]
-    y_train = y_data[0:train_size]
+    x_train = x_data
+    y_train = y_data
     x_test = x_data[train_size:]
     y_test = y_data[train_size:]
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
 
 def train_test_split_head(x_data, y_data, test_size=0.2):
     train_size = int(len(x_data) * (1-test_size))
-    x_train = x_data[-train_size:]
-    y_train = y_data[-train_size:]
+    #x_train = x_data[-train_size:]
+    #y_train = y_data[-train_size:]
+    x_train = x_data
+    y_train = y_data
     x_test = x_data[:-train_size]
     y_test = y_data[:-train_size]
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
