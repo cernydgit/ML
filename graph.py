@@ -45,14 +45,22 @@ class Graph:
         self.trade_spread = spread
         df = pd.read_csv(self.graph_path + file) #, sep='')
         close = np.array(df[df.columns[5]].tolist())
+        low = np.array(df[df.columns[4]].tolist())
+        high = np.array(df[df.columns[3]].tolist())
 
         if silent == False:
             print('Loaded ', len(close), 'records from', file) 
         close = close[start:]   
+        low = low[start:]   
+        high = high[start:]   
         if max_records>0:
             close = close[:max_records]
+            low = low[:max_records]
+            high = high[:max_records]
 
         self.series['input:graph:close'] = self.scale_min_max(close) * mult
+        self.series['input:graph:low'] = self.scale_min_max(low) * mult
+        self.series['input:graph:high'] = self.scale_min_max(high) * mult
         #self.series['input:graph:close'] = close
         
         
@@ -499,10 +507,10 @@ class Graph:
 
     def compute_jma_complex(self, period, phase, count=1):
         for i in range(count):
-            self.jma(period,phase)
+            #self.jma(period,phase)
             self.jmamom(period,phase)
-            self.jmacd(period,1,phase)
-            #self.jmacd(period,int(period/2),phase)
+            #self.jmacd(period,1,phase)
+            self.jmacd(period,int(period/2),phase)
             #self.jmacd(period,5,phase)
             #self.compute_min_distance(period)
             #self.compute_max_distance(period)
