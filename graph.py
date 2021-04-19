@@ -509,7 +509,7 @@ class Graph:
         for i in range(count):
             #self.jma(period,phase)
             self.jmamom(period,phase)
-            #self.jmacd(period,1,phase)
+            self.jmacd(period,1,phase)
             self.jmacd(period,int(period/2),phase)
             #self.jmacd(period,5,phase)
             #self.compute_min_distance(period)
