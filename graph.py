@@ -507,7 +507,7 @@ class Graph:
 
     def compute_jma_complex(self, period, phase, count=1):
         for i in range(count):
-            #self.jma(period,phase)
+            self.jma(period,phase)
             self.jmamom(period,phase)
             self.jmacd(period,1,phase)
             self.jmacd(period,int(period/2),phase)
@@ -587,7 +587,7 @@ class Graph:
             profit += (self.values[t[1]] - self.values[t[0]]) * t[2]
             balance.append(profit)
 
-        plt.figure(figsize=(25,5))
+        plt.figure(figsize=(25,5)) 
         plt.plot(balance)
 
     def show_result(self, show_start=0, show_length=0, min_signal=0 ):

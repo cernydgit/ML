@@ -43,10 +43,10 @@ train_sample_range = range(2,100,100)
 min_profit_range = floatrange(0.0, 6, 100)
 jma_period_range = range(10, 60, 500)
 jma_phase_range = range(100,101,1000)
-target_divergence_range = range(20,100,100)
+target_divergence_range = range(2,100,100)
 
 min_signal = 0.01
-runs = 50
+runs = 1
 
 result = []
 graphs = []
@@ -59,7 +59,7 @@ for jma_period in jma_period_range:
 					for x in range(runs):
 						g = graphlib.Graph()
 						graphs.append(g)
-						g.load("EURUSD15.csv", start = 20000, max_records = 15000, mult=1000)
+						g.load("EURUSD15.csv", start = 40000, max_records = 15000, mult=1000)
 						g.plot_graph(filter='input:graph:close')
 
 						print('TRAINING:')
