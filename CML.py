@@ -76,12 +76,14 @@ for jma_period in jma_period_range:
 
 frame = pd.DataFrame(result, columns = ['divergence_period','jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 
+pd.set_option('display.width', 400)
+print("\nRESULTS:")
+print(frame)
+
+
 if (len(result) > 1):
-	pd.set_option('display.width', 400)
 	print('\nSUMMARY:')
 	print(frame.describe())
-	print("\nRESULTS:")
-	print(frame)
 	print("\nCORRELATION:")
 	print(frame.corr())
 

@@ -58,9 +58,18 @@ class Graph:
             low = low[:max_records]
             high = high[:max_records]
 
-        self.series['input:graph:close'] = self.scale_min_max(close) * mult
-        self.series['input:graph:low'] = self.scale_min_max(low) * mult
-        self.series['input:graph:high'] = self.scale_min_max(high) * mult
+
+        max = np.max(high[~np.isnan(high)])
+        min = np.min(low[~np.isnan(low)])
+        self.series['input:graph:close'] = (close-min)/(max-min) *mult
+        self.series['input:graph:low'] = (low-min)/(max-min) *mult
+        self.series['input:graph:high'] = (high-min)/(max-min) *mult
+        
+
+
+        #self.series['input:graph:close'] = self.scale_min_max(close) * mult
+        #self.series['input:graph:low'] = self.scale_min_max(low) * mult
+        #self.series['input:graph:high'] = self.scale_min_max(high) * mult
         #self.series['input:graph:close'] = close
         
         
@@ -511,7 +520,12 @@ class Graph:
             self.jmamom(period,phase)
             self.jmacd(period,1,phase)
             self.jmacd(period,int(period/2),phase)
-            #self.jmacd(period,5,phase)
+            # self.jmacd(period,5,phase)
+            # high + low
+            self.jma(period,phase,input='low')
+            self.jma(period,phase,input='high')
+            self.jmamom(period,phase,input='low')
+            self.jmamom(period,phase,input='high')
             #self.compute_min_distance(period)
             #self.compute_max_distance(period)
             period *= 3
@@ -598,18 +612,18 @@ class Graph:
         self.plot_indicator(start=show_start, length=show_length, filter='ml:ind:trained')
         return result
 
-    def jma(self, period, phase):
-        self.series['input:graph:jma:'+str(period)+':'+str(phase)] = ta2.jma(self.close(), period, phase)
+    def jma(self, period, phase, input = 'close' ):
+        self.series['input:graph:jma:'+input+':'+str(period)+':'+str(phase)] = ta2.jma(self.series['input:graph:'+input], period, phase)
 
     def jmacd(self, slow_period, fast_period, phase):
         macd = ta2.jmacd(self.close(), slow_period, fast_period, phase)
         macd = self.scale_min_max(macd) - 0.5;
         self.series['input:ind:jmacd:'+str(slow_period)+':'+str(fast_period)+':'+str(phase)] = macd
 
-    def jmamom(self, jma_period, jma_phase, mom_period=1):
-        mom = ta2.jmamom(self.close(), jma_period,  jma_phase, mom_period);
+    def jmamom(self, jma_period, jma_phase, mom_period=1, input='close'):
+        mom = ta2.jmamom(self.series['input:graph:'+input], jma_period,  jma_phase, mom_period);
         mom = self.scale_min_max(mom) - 0.5;
-        self.series['input:ind:jmamom:'+str(jma_period)+':'+str(jma_phase)+':'+str(mom_period)] = mom
+        self.series['input:ind:jmamom:'+ input+ ':'+str(jma_period)+':'+str(jma_phase)+':'+str(mom_period)] = mom
 
 
     def analyze(self, silent = False, train_sample = 10, min_profit=0.0, train_epochs = 100, min_signal=0.1):

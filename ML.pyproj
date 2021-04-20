@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>dabf8602-17fe-4d74-b520-256c51a20cd3</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>minmax.py</StartupFile>
+    <StartupFile>indicator_lab.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -32,7 +32,7 @@
     <Compile Include="losses.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="minmax.py">
+    <Compile Include="indicator_lab.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="ML.py" />
