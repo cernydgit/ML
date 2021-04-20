@@ -6,6 +6,7 @@ import random as rnd
 import pandas as pd
 import math
 import time
+import datetime
 from softsign_profit import softsign_profit_mean
 from keras.models import Sequential
 from keras.layers import Dense
@@ -39,7 +40,7 @@ class Graph:
         self.trades = []
 
 
-    def load(self, file, spread = 0, max_records = 0, start = 0, silent=False, mult = 1):
+    def load(self, file, spread = 0, max_records = 0, start = 0, silent=False, mult = 1, ohlc=False):
         self.trades.clear()
         self.file = file
         self.trade_spread = spread
@@ -47,36 +48,35 @@ class Graph:
         close = np.array(df[df.columns[5]].tolist())
         low = np.array(df[df.columns[4]].tolist())
         high = np.array(df[df.columns[3]].tolist())
+        hours = np.array(df[df.columns[1]].tolist())
 
         if silent == False:
             print('Loaded ', len(close), 'records from', file) 
         close = close[start:]   
         low = low[start:]   
         high = high[start:]   
+        hours = hours[start:]
         if max_records>0:
             close = close[:max_records]
             low = low[:max_records]
             high = high[:max_records]
+            hours = hours[:max_records]
 
 
         max = np.max(high[~np.isnan(high)])
         min = np.min(low[~np.isnan(low)])
         self.series['input:graph:close'] = (close-min)/(max-min) *mult
-        self.series['input:graph:low'] = (low-min)/(max-min) *mult
-        self.series['input:graph:high'] = (high-min)/(max-min) *mult
-        
+        if (ohlc):
+            self.series['input:graph:low'] = (low-min)/(max-min) *mult
+            self.series['input:graph:high'] = (high-min)/(max-min) *mult
 
-
-        #self.series['input:graph:close'] = self.scale_min_max(close) * mult
-        #self.series['input:graph:low'] = self.scale_min_max(low) * mult
-        #self.series['input:graph:high'] = self.scale_min_max(high) * mult
-        #self.series['input:graph:close'] = close
-        
-        
-
-        
-        #self.series['ind:macd3'] = ta.MACD(close,3,12)[0]
-        #self.series['ind:macd12'] = ta.MACD(close,12,26)[0]
+        mins = []
+        for t in hours:         
+            to = datetime.datetime.strptime(t, '%H:%M')
+            mins.append(to.hour * 60 + to.minute)
+        mins = np.array(mins)
+        mins = self.scale_min_max(mins)
+        self.series['input:ind:time'] = mins
 
 
     def compute_cci(self, start,stop,step=1):
@@ -522,10 +522,11 @@ class Graph:
             self.jmacd(period,int(period/2),phase)
             # self.jmacd(period,5,phase)
             # high + low
-            self.jma(period,phase,input='low')
-            self.jma(period,phase,input='high')
-            self.jmamom(period,phase,input='low')
-            self.jmamom(period,phase,input='high')
+            if ('input:graph:low' in self.series):
+                self.jma(period,phase,input='low')
+                self.jma(period,phase,input='high')
+                self.jmamom(period,phase,input='low')
+                self.jmamom(period,phase,input='high')
             #self.compute_min_distance(period)
             #self.compute_max_distance(period)
             period *= 3

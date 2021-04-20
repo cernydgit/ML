@@ -37,8 +37,6 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-point_count = 30000
-
 train_sample_range = range(2,100,100)
 min_profit_range = floatrange(0.0, 6, 100)
 jma_period_range = range(10, 60, 500)
@@ -46,7 +44,7 @@ jma_phase_range = range(100,101,1000)
 target_divergence_range = range(2,100,100)
 
 min_signal = 0.01
-runs = 1
+runs = 50
 
 result = []
 graphs = []

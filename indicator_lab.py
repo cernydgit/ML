@@ -37,16 +37,28 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
+import datetime
+
+date_time_str = '14:15'
+date_time_obj = datetime.datetime.strptime(date_time_str, '%H:%M')
+
+print('MinInDay:', date_time_obj.time().hour*60+date_time_obj.time().minute)
+print('Date:', date_time_obj.date())
+print('Time:', date_time_obj.time())
+print('Date-time:', date_time_obj)
+
+
+
 g = graphlib.Graph()
 g.load("EURUSD15.csv", start = 40000, max_records = 20000, mult=1000)
 #g.compute_min_distance(5)
 #g.compute_max_distance(5)
 #g.plot_graph(filter='input:graph:close')
 g.jma(10,100)
-g.jma(10,100,input='low')
-g.jma(10,100,input='high')
+#g.jma(10,100,input='low')
+#g.jma(10,100,input='high')
 g.jmamom(10,100)
-g.jmamom(10,100,input='high')
-g.jmamom(10,100,input='low')
+#g.jmamom(10,100,input='high')
+#g.jmamom(10,100,input='low')
 g.plot_graph(start=100, length=50, filter = 'jma:')
-g.plot_indicator(start=100, length=50)
+g.plot_indicator(start=100, length=5000)
