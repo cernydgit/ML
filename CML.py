@@ -39,13 +39,15 @@ def floatrange(start,end,step):
 
 train_sample_range = range(2,100,100)
 min_profit_range = floatrange(0.0, 6, 100)
-jma_period_range = range(10, 60, 500)
+jma_period_range = range(5, 60, 500)
 jma_phase_range = range(100,101,1000)
 target_divergence_range = range(2,100,100)
 
 min_signal = 0.01
-runs = 50
+runs = 1
 
+start = 0
+max_records = 60000
 result = []
 graphs = []
 
@@ -57,20 +59,33 @@ for jma_period in jma_period_range:
 					for x in range(runs):
 						g = graphlib.Graph()
 						graphs.append(g)
-						g.load("EURUSD15.csv", start = 40000, max_records = 15000, mult=1000)
+						g.load("EURUSD15.csv", start = start, max_records = max_records, mult=1000)
+
+
+						test_start=int(0.8*len(g.close()))
+						test_length=int(0.2*len(g.close()))
+
+
 						g.plot_graph(filter='input:graph:close')
 
-						print('TRAINING:')
-						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=2)
+						print('TRAINING SET:')
+						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=3)
 						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 2, layers_reduction=0, dropout=0.1, epochs=300,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 						test_profit = -testing_set_loss 
 						total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal=min_signal, silent = False)
-						g.plot_equity()
-						g.plot_equity(start=3000, length=800)
-						g.plot_graph(start=3000, length=800, plot_trades = True, filter='input:graph:close')
-						g.plot_indicator(start=3000, length=800, filter='ml:ind:trained')
-
 						result.append([target_divergence_period, jma_period, jma_phase, train_sample, min_profit, test_profit + min_profit, test_profit, total_profit, avg_profit, profit_factor, success_rate, trades])
+						g.plot_equity()
+
+
+						print('VALIDATION SET:')
+						test_start=int(0.8*len(g.close()))
+						test_length=int(0.2*len(g.close()))
+						g.trade(min_signal=min_signal, silent = False, start=test_start, length=test_length)
+
+						g.plot_equity(length = test_length)
+						#g.plot_graph(start=test_start, length=test_length, plot_trades = True, filter='input:graph:close')
+						#g.plot_indicator(start=test_start, length=test_length, filter='ml:ind:trained')
+
 
 frame = pd.DataFrame(result, columns = ['divergence_period','jma_period','jma_phase','train_sample', 'min_profit', 'test_profit', 'clean_test_profit', 'total_profit', 'avg_profit', 'profit_factor', 'success_rate', 'trades'])
 

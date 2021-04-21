@@ -243,7 +243,7 @@ class Graph:
 
 
         
-    def trade(self, min_signal = 0, silent=False, source='ml:ind:trained'):
+    def trade(self, min_signal = 0, silent=False, source='ml:ind:trained', start = 0, length = 0):
         max_trades = 100
         self.trade_min_signal = min_signal
         self.trade_profit = 0
@@ -259,7 +259,10 @@ class Graph:
 
         signals = self.series[source]
 
-        for i in range(0, len(signals)):
+        end = len(signals) - start
+        if (length > 0): end = start + length
+
+        for i in range(start, end):
             signal = signals[i] 
             
             if (abs(signal) > min_signal): 
