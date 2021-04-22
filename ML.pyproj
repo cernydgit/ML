@@ -52,6 +52,9 @@
     <InterpreterReference Include="CondaEnv|CondaEnv|ml38-gpu" />
     <InterpreterReference Include="CondaEnv|CondaEnv|myenv" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="results.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
        Visual Studio and specify your pre- and post-build commands in
