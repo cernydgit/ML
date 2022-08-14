@@ -42,7 +42,7 @@ class Graph:
 
     def load(self, file, spread = 0, max_records = 0, start = 0, silent=False, mult = 1, ohlc=False):
         self.trades.clear()
-        self.file = file
+        self.file = file 
         self.trade_spread = spread
         df = pd.read_csv(self.graph_path + file) #, sep='')
         close = np.array(df[df.columns[5]].tolist())
@@ -55,7 +55,7 @@ class Graph:
         close = close[start:]   
         low = low[start:]   
         high = high[start:]   
-        hours = hours[start:]
+        hours = hours[start:] 
         if max_records>0:
             close = close[:max_records]
             low = low[:max_records]
@@ -198,7 +198,7 @@ class Graph:
         x_data, _, start = self.get_train_series_for_dnn(sample_size=sample_size, input_prefix=input_prefix, zero_origin=zero_origin)
 
         y_pred = self.model.predict(x_data)
-        y_pred = [y[0] for y in y_pred]
+        y_pred = [y[0] for y in y_pred] 
         y_pred = [np.nan] * (start+sample_size-1) + y_pred
         y_pred = y_pred + [np.nan] * (len(self.close()) - len(y_pred)) 
         #print('y start', start+sample_size-1)
