@@ -9,7 +9,6 @@ from tensorflow import keras
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
-
 def use_gpu(useGPU):
     num_cores = 4
 
@@ -47,14 +46,11 @@ def plot_history(history, metric):
 
 def train_model(model, x_train, y_train, loss, metric, epochs):
     #model.compile(optimizer="adam", loss=loss, metrics=[metric])
-    #tf.compat.v1.enable_eager_execution()
     optimizer = keras.optimizers.RMSprop(lr=0.001,rho=0.9, epsilon=1e-08, decay=0.0)
     model.compile(optimizer=optimizer, loss=loss, metrics=[metric]) #, run_eagerly=True)
-    #model.run_eagerly=True
     early_stop = keras.callbacks.EarlyStopping(monitor='val_loss', patience=20)
     history = model.fit(x_train, y_train,batch_size=128, epochs=epochs, validation_split = 0.2, shuffle=True, verbose=0,  callbacks=[early_stop, tfdocs.modeling.EpochDots()])
     print(" done.")
-    #plot_history(history, metric)
     plot_history(history, 'loss')
     plt.show()
 
@@ -77,7 +73,9 @@ def prepare_train_data(x_data, y_data, normalize = True):
         scaler = StandardScaler()
         x_train = scaler.fit_transform(x_train)
         x_test = scaler.transform(x_test)
+    print('whole data size:', len(x_data))
     print('train data size:', len(x_train))
+    print('test  data size:', len(x_test))
     #for i in range(3): print(x_train[i],' => ', y_train[i])
     return x_train, x_test, y_train, y_test
 
@@ -89,6 +87,8 @@ def execute(model, x_data, y_data, loss, metric, epochs, normalize = True):
 
 def train_test_split_tail(x_data, y_data, test_size=0.2):
     train_size = int(len(x_data) * (1-test_size))
+    #x_train = x_data[0:train_size]
+    #y_train = y_data[0:train_size]
     x_train = x_data
     y_train = y_data
     x_test = x_data[train_size:]
@@ -97,10 +97,10 @@ def train_test_split_tail(x_data, y_data, test_size=0.2):
 
 def train_test_split_head(x_data, y_data, test_size=0.2):
     train_size = int(len(x_data) * (1-test_size))
-    #x_train = x_data[-train_size:]
-    #y_train = y_data[-train_size:]
-    x_train = x_data
-    y_train = y_data
+    x_train = x_data[-train_size:]
+    y_train = y_data[-train_size:]
+    #x_train = x_data
+    #y_train = y_data
     x_test = x_data[:-train_size]
     y_test = y_data[:-train_size]
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)

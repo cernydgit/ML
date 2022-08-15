@@ -244,7 +244,7 @@ class Graph:
 
         
     def trade(self, min_signal = 0, silent=False, source='ml:ind:trained', start = 0, length = 0):
-        max_trades = 100
+        max_trades = 1
         self.trade_min_signal = min_signal
         self.trade_profit = 0
         self.trades.clear()

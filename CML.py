@@ -37,14 +37,14 @@ def floatrange(start,end,step):
 
 #%% RUN ----------------------------------------------------------------------------------
 
-train_sample_range = range(2,100,100)
-min_profit_range = floatrange(0.0, 6, 100)
-jma_period_range = range(5, 60, 500)
+train_sample_range = range(2,10,300)
+min_profit_range = floatrange(0, 2, 500)
+jma_period_range = range(5, 20, 100)
 jma_phase_range = range(100,101,1000)
 target_divergence_range = range(2,100,100)
 
-min_signal = 0.01
-runs = 1
+min_signal = 0
+runs = 5
 
 start = 0
 max_records = 60000
@@ -70,10 +70,12 @@ for jma_period in jma_period_range:
 
 						print('TRAINING SET:')
 						g.prepare_training(jma_period=jma_period,jma_phase=jma_phase, target_divergence_period=target_divergence_period, jma_count=3)
-						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 2, layers_reduction=0, dropout=0.1, epochs=100,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
+						testing_set_loss, metric, y_test, y_pred = g.train_dnn(sample_size=train_sample, layers = 2, layers_reduction=0, dropout=0.1, epochs=400,  loss=softsign_profit_mean(min_profit), final_activation='softsign') 
 						test_profit = -testing_set_loss 
-						total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal=min_signal, silent = False)
-						g.plot_equity()
+						print('test_profit:', test_profit)
+						train_length = int(0.8*len(g.close()))
+						total_profit, avg_profit, profit_factor, success_rate, trades = g.trade(min_signal=min_signal, silent = False, start = 0, length = train_length)
+						g.plot_equity(length = train_length)
 
 
 						print('VALIDATION SET:')
